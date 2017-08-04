@@ -13,11 +13,13 @@ import scala.util.control.Breaks._
 
 
 class budgetAnalyser(csvString1: String,
+                     csvString2: String = "",
                      properties: String,
                      sc: SQLContext,
                      display: Boolean = false,
                      writeToDisk: Boolean = false,
-                     csvString2: String = "") {
+                     writeToPath: String = ""
+                     ) {
   val catMap = new LinkedHashMap[String, ArrayBuffer[budgetRow]]
   val income = new ArrayBuffer[budgetRow]
   val outgoings = new ArrayBuffer[budgetRow]
