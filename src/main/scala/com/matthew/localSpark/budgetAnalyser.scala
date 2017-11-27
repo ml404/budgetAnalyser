@@ -23,6 +23,7 @@ class budgetAnalyser(csvString1: String,
   val catMap = new LinkedHashMap[String, ArrayBuffer[budgetRow]]
   val income = new ArrayBuffer[budgetRow]
   val outgoings = new ArrayBuffer[budgetRow]
+  val savings = new ArrayBuffer[budgetRow]
   val catTotals = new LinkedHashMap[String, Double]
   val result = new ArrayBuffer[budgetRow]
   val totalsAndTransactions = new ListBuffer[(String, Double, String)]
@@ -66,9 +67,9 @@ class budgetAnalyser(csvString1: String,
     df.as[budgetRow].rdd.collect().foreach(br => breakable {
       for ((k, v) <- confMap)
         br match {
-          case _ if br.description.matches(v) && !br.value.contains("+") => catMap.getOrElseUpdate(k, new ArrayBuffer[budgetRow])+=br; break
-          case _ if br.Type.matches(v) && !br.value.contains("+") => catMap.getOrElseUpdate(k, new ArrayBuffer[budgetRow])+=br; break
-          case _ if br.Type.contains("CREDIT IN") => income+=br; break
+          case _ if br.Description.matches(v) && br.Value.contains("-") && !br.Description.matches("(?i).*MATTHEW LAYTON.*") && !br.Description.matches("(?i).*MADDOX LEC.*|(?i).*LUCY LU.*") => catMap.getOrElseUpdate(k, new ArrayBuffer[budgetRow])+=br; break
+          case _ if br.Description.matches("(?i).*transfer.out.*|(?i).*TRANSFER TO MR MATTHEW GRANT LAYTON.*|(?i).*savings account.*|(?i).*savings.*")  => savings+=br; break
+          case _ if !br.Value.contains("-") && !br.Description.matches("(?i).*MATTHEW LAYTON.*") && !br.Description.matches("(?i).*MADDOX LEC.*") => income+=br; break
           case _ =>
         }
     })
@@ -79,6 +80,7 @@ class budgetAnalyser(csvString1: String,
     for (elem <- catMap) {totalsAndTransactions+=((elem._1,catTotals.getOrElse(elem._1, 0.0), elem._2.mkString(" ").replaceAll("budgetRow", "")))}
     totalsAndTransactions+=(("Total Outgoings", BigDecimal(catTotals.getOrElse("Total Calculated", 0.0)).setScale(2, RoundingMode.HALF_UP).toDouble, ""))
     totalsAndTransactions+=(("Income", categoryTotal(income), ""))
+    totalsAndTransactions+=(("Savings", categoryTotal(savings), ""))
     totalsAndTransactions+=(("Net Income", BigDecimal(categoryTotal(income)-catTotals.getOrElse("Total Calculated", 0.0)).setScale(2, RoundingMode.HALF_UP).toDouble, ""))
   }
 
@@ -96,7 +98,7 @@ class budgetAnalyser(csvString1: String,
 
     var sum = 0.0
     for (row <- array) {
-      sum += row.value.toString.replaceAll("[^0-9.]", "").toDouble
+      sum += row.Value.toString.replaceAll("[^0-9.]", "").toDouble
     }
     BigDecimal(sum).setScale(2, RoundingMode.HALF_UP).toDouble
   }

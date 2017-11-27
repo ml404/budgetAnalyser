@@ -10,8 +10,8 @@ object budgetAnalyserOpts {
   @Option(name = "--csv2", usage = "csv2 location", required = false)
   var csvPath2: String =""
 
-  @Option(name = "--props", usage = "property file location", required = true)
-  var propertiesFile: String =""
+  @Option(name = "--props", usage = "property file location", required = false)
+  var propertiesFile: String ="E:/Users/Matt/workspace/sparkPlayground/src/resources/application.conf"
 
   @Option(name = "--v", usage = "display verbose", required = false)
   var display: Boolean = false

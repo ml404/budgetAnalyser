@@ -21,13 +21,13 @@ object budgetAnalyserRunner{
    try {
      parser.parseArgument(args.toList)
      val outputFile = opts.writePath
-     val filename = opts.writePath.split("/")(opts.writePath.split("/").length - 1)
+     val filename = opts.writePath.split("/")(opts.writePath.split("/").length - 1)+".csv"
      val outputFileName = outputFile + "/temp_" + filename
      val mergedFileName = outputFile + "/merged_" + filename
      val mergeFindGlob = outputFileName
      val ba = new budgetAnalyser(opts.csvPath1, opts.csvPath2, opts.propertiesFile, sc, opts.display, opts.writeToDisk, opts.writePath)
      val df1 = sc.createDataFrame(ba.totalsAndTransactions)
-     val categoryNames = Seq("Category Total", "Total", "Transaction")
+     val categoryNames = Seq("Category", "Total", "Transaction")
      val flattened = df1.toDF(categoryNames: _*)
      flattened.show(flattened.count.toInt, false)
 
